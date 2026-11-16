@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>কৈয়ারচালা ৪নং ওয়ার্ড উন্নয়ন সংগঠন</title>
+<style>
+body{margin:0;font-family:Arial,sans-serif;color:#172b40;line-height:1.7}
+header,footer{background:#071b35;color:white;text-align:center;padding:22px}
+header h2{margin:0}
+nav a{color:white;margin:8px;text-decoration:none}
+.hero{background:linear-gradient(120deg,#071b35,#16834b);color:white;text-align:center;padding:55px 15px}
+section{padding:30px 18px;max-width:850px;margin:auto}
+h2{color:#087344}
+form{display:grid;gap:12px}
+input,textarea{padding:12px;border:1px solid #bbb;border-radius:7px;font-size:16px}
+button{padding:12px;background:#16834b;color:white;border:0;border-radius:7px;font-size:16px}
+.card{background:#f2f7f4;padding:18px;border-radius:10px;margin:12px 0}
+#dashboard{display:none}
+small{color:#555}
+</style>
+</head>
+<body>
+<header>
+<h2>কৈয়ারচালা ৪নং ওয়ার্ড উন্নয়ন সংগঠন</h2>
+<p>মানবতার সেবায়, মানুষের পাশে।</p>
+<nav>
+<a href="#about">পরিচিতি</a>
+<a href="#work">কার্যক্রম</a>
+<a href="#join">সদস্য আবেদন</a>
+<a href="#admin">অ্যাডমিন</a>
+</nav>
+</header>
+
+<div class="hero">
+<h1>স্বাগতম</h1>
+<p>ঐক্য, সহযোগিতা ও মানবতার মাধ্যমে এলাকার উন্নয়ন</p>
+</div>
+
+<section id="about">
+<h2>আমাদের সম্পর্কে</h2>
+<p>কৈয়ারচালা ৪নং ওয়ার্ড উন্নয়ন সংগঠন একটি সামাজিক ও মানবিক সংগঠন। এলাকার মানুষের কল্যাণ, সামাজিক উন্নয়ন, স্বাস্থ্যসেবা এবং অসহায় মানুষের পাশে দাঁড়ানো আমাদের লক্ষ্য।</p>
+</section>
+
+<section id="work">
+<h2>আমাদের কার্যক্রম</h2>
+<div class="card"><b>মানবিক সহায়তা</b><br>অসহায় ও সুবিধাবঞ্চিত মানুষের পাশে দাঁড়ানো।</div>
+<div class="card"><b>স্বাস্থ্যসেবা</b><br>বিনামূল্যে চিকিৎসা ক্যাম্প ও স্বাস্থ্যসচেতনতা।</div>
+<div class="card"><b>সামাজিক উন্নয়ন</b><br>এলাকার উন্নয়নমূলক কাজে অংশগ্রহণ।</div>
+</section>
+
+<section id="join">
+<h2>সদস্য হওয়ার আবেদন</h2>
+<form id="memberForm">
+<input id="name" placeholder="আপনার পূর্ণ নাম" required>
+<input id="phone" placeholder="মোবাইল নম্বর" required>
+<input id="address" placeholder="গ্রাম / ঠিকানা" required>
+<input id="job" placeholder="পেশা (ঐচ্ছিক)">
+<textarea id="message" placeholder="আপনার বক্তব্য (ঐচ্ছিক)"></textarea>
+<button type="submit">আবেদন জমা দিন</button>
+<p id="formStatus"></p>
+</form>
+</section>
+
+<section id="admin">
+<h2>অ্যাডমিন লগইন</h2>
+<form id="loginForm">
+<input id="email" type="email" placeholder="অ্যাডমিন ইমেইল" required>
+<input id="password" type="password" placeholder="পাসওয়ার্ড" required>
+<button type="submit">লগইন</button>
+<p id="loginStatus"></p>
+</form>
+<div id="dashboard">
+<button id="logout">লগআউট</button>
+<h3>সদস্য আবেদনসমূহ</h3>
+<div id="members"></div>
+</div>
+</section>
+
+<footer>© কৈয়ারচালা ৪নং ওয়ার্ড উন্নয়ন সংগঠন</footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+apiKey:"AIzaSyCpO6CwH6C8ZR1vHKgOQWbbftOAMhyI4Pc",
+authDomain:"koiarchala-ward-4-organization.firebaseapp.com",
+projectId:"koiarchala-ward-4-organization",
+storageBucket:"koiarchala-ward-4-organization.firebasestorage.app",
+messagingSenderId:"603200063983",
+appId:"1:603200063983:web:d964f441c508620b32ce1a",
+measurementId:"G-NP9Z2SZ5CV"
+};
+
+const ADMIN_UID="A9NmMagl3QWO5WkSJszZiCmo1hk2";
+firebase.initializeApp(firebaseConfig);
+const auth=firebase.auth();
+const db=firebase.firestore();
+
+document.getElementById("memberForm").addEventListener("submit",async function(e){
+e.preventDefault();
+const status=document.getElementById("formStatus");
+try{
+await db.collection("members").add({
+name:document.getElementById("name").value.trim(),
+phone:document.getElementById("phone").value.trim(),
+address:document.getElementById("address").value.trim(),
+occupation:document.getElementById("job").value.trim(),
+message:document.getElementById("message").value.trim(),
+status:"pending",
+createdAt:firebase.firestore.FieldValue.serverTimestamp()
+});
+this.reset();
+status.textContent="আপনার আবেদন জমা হয়েছে। ধন্যবাদ।";
+}catch(error){
+status.textContent="আবেদন জমা হয়নি। পরে আবার চেষ্টা করুন।";
+}
+});
+
+document.getElementById("loginForm").addEventListener("submit",async function(e){
+e.preventDefault();
+try{
+await auth.signInWithEmailAndPassword(
+document.getElementById("email").value,
+document.getElementById("password").value
+);
+}catch(error){
+document.getElementById("loginStatus").textContent="ইমেইল অথবা পাসওয়ার্ড সঠিক নয়।";
+}
+});
+
+auth.onAuthStateChanged(async function(user){
+if(user && user.uid===ADMIN_UID){
+document.getElementById("loginForm").style.display="none";
+document.getElementById("dashboard").style.display="block";
+loadMembers();
+}else{
+document.getElementById("loginForm").style.display="grid";
+document.getElementById("dashboard").style.display="none";
+if(user) await auth.signOut();
+}
+});
+
+async function loadMembers(){
+const area=document.getElementById("members");
+area.textContent="লোড হচ্ছে...";
+try{
+const result=await db.collection("members").orderBy("createdAt","desc").get();
+area.innerHTML="";
+if(result.empty){area.textContent="কোনো আবেদন নেই।";return;}
+result.forEach(doc=>{
+const m=doc.data();
+const item=document.createElement("div");
+item.className="card";
+const title=document.createElement("b");
+title.textContent=m.name||"";
+const details=document.createElement("p");
+details.textContent="মোবাইল: "+(m.phone||"")+" | ঠিকানা: "+(m.address||"")+" | অবস্থা: "+(m.status||"");
+item.append(title,details);
+area.appendChild(item);
+});
+}catch(error){
+area.textContent="আবেদন তালিকা দেখা যাচ্ছে না।";
+}
+}
+
+document.getElementById("logout").addEventListener("click",()=>auth.signOut());
+</script>
+</body>
+  </html>
