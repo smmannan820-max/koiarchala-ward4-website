@@ -61,7 +61,10 @@ small{color:#555}
 <p id="formStatus"></p>
 </form>
 </section>
-
+<section id="publicMembers">
+  <h2>আমাদের সদস্য তালিকা</h2>
+  <div id="publicMemberList">সদস্য তালিকা লোড হচ্ছে...</div>
+</section>
 <section id="admin">
 <h2>অ্যাডমিন লগইন</h2>
 <form id="loginForm">
@@ -275,6 +278,53 @@ document.getElementById("members").addEventListener("click", async function(e){
     alert("কাজটি সম্পন্ন হয়নি। আবার চেষ্টা করুন।");
   }
 });
+  // সবার জন্য অনুমোদিত সদস্যদের তালিকা
+async function loadPublicMembers() {
+  const area = document.getElementById("publicMemberList");
+
+  try {
+    const result = await db.collection("members")
+      .where("status", "==", "approved")
+      .get();
+
+    area.innerHTML = "";
+
+    if (result.empty) {
+      area.textContent = "এখনো কোনো অনুমোদিত সদস্য নেই।";
+      return;
+    }
+
+    result.forEach(doc => {
+      const m = doc.data();
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const name = document.createElement("h3");
+      name.textContent = m.name || "";
+
+      const details = document.createElement("p");
+      details.textContent =
+        "মোবাইল: " + (m.phone || "") +
+        " | ঠিকানা: " + (m.address || "") +
+        " | পেশা: " + (m.job || m.occupation || "");
+
+      card.append(name, details);
+
+      if (m.message) {
+        const message = document.createElement("p");
+        message.textContent = "বক্তব্য: " + m.message;
+        card.appendChild(message);
+      }
+
+      area.appendChild(card);
+    });
+
+  } catch (error) {
+    area.textContent = "সদস্য তালিকা লোড করা যাচ্ছে না।";
+  }
+}
+
+loadPublicMembers();
 </script>
 </body>
   </html>
